@@ -11,7 +11,9 @@
 
 	function doRedirect() {
 		if (url && isAllowedDomain(url)) {
-			window.location.href = url;
+			const redirectUrl = new URL(url);
+			redirectUrl.searchParams.set('openStore', 'true');
+			window.location.href = redirectUrl.toString();
 			setTimeout(() => {
 				history.back();
 			}, 1000);
