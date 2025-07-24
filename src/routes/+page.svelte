@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { createDeferredLink } from '$src/lib/helpers/deep_links/deep_links_mixin';
 	import appIcon from '$src/lib/images/icon.webp';
+	import type { DeferredLinkData } from '$src/lib/models/deep_links/deferred_link_data';
 	import { getDeferredLinkData } from '$src/lib/utils/deep_links';
 	import { isAllowedDomain } from '$src/lib/utils/domain';
 	import { onMount } from 'svelte';
@@ -8,11 +9,25 @@
 	let name: string | null = null;
 	let url: string | null = null;
 	let valid = false;
+	let deferredLinkData: DeferredLinkData | undefined = undefined;
 
-	function doRedirect() {
+	async function doRedirect() {
 		if (url && isAllowedDomain(url)) {
 			const redirectUrl = new URL(url);
-			redirectUrl.searchParams.set('openStore', 'true');
+
+			// Await 2 sec for the deferred link data to be created
+			if (!deferredLinkData) {
+				await new Promise((resolve) => setTimeout(resolve, 2000));
+				return;
+			}
+			// Still null dismiss the click
+			if (!deferredLinkData) {
+				console.error('Deferred link data is not available');
+				return;
+			}
+			const dataString = encodeURIComponent(JSON.stringify(deferredLinkData));
+			redirectUrl.searchParams.set('deepLinkData', dataString);
+
 			window.location.href = redirectUrl.toString();
 			setTimeout(() => {
 				history.back();
@@ -31,7 +46,7 @@
 			return;
 		}
 		// Create the deferred link data to send to the server
-		const deferredLinkData = await getDeferredLinkData(params);
+		deferredLinkData = await getDeferredLinkData(params);
 		if (!deferredLinkData) {
 			console.error('Failed to create deferred link data');
 			return;
