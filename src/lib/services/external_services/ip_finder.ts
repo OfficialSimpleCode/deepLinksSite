@@ -9,7 +9,7 @@ interface IpResponse {
 	ip: string;
 }
 
-export async function getIps(timeoutMs: number = 2000): Promise<DeviceIps> {
+export async function getIps(timeoutMs: number = 3000): Promise<DeviceIps> {
 	// Create AbortController for timeout
 	const controller = new AbortController();
 	const timeout = setTimeout(() => controller.abort(), timeoutMs);
