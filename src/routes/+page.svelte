@@ -26,6 +26,7 @@
 				return;
 			}
 			const dataString = encodeURIComponent(JSON.stringify(deferredLinkData));
+			redirectUrl.searchParams.set('openApp', 'true');
 			redirectUrl.searchParams.set('deepLinkData', dataString);
 
 			window.location.href = redirectUrl.toString();
